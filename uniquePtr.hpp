@@ -1,4 +1,5 @@
 #pragma once
+#include <utility>
 
 template <typename T>
 class unique_ptr {
@@ -11,10 +12,11 @@ class unique_ptr {
     unique_ptr(const unique_ptr&) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
 
-    unique_ptr(unique_ptr&& movingPtr) noexcept {
-        ptr_ = movingPtr.ptr_;
+    unique_ptr(unique_ptr<T>&& movingPtr) noexcept
+        : ptr_(std::move(movingPtr.ptr_)) {
         movingPtr.ptr_ = nullptr;
     }
+
     void operator=(unique_ptr&& movingPtr) noexcept {
         if (ptr_ != nullptr)
             delete ptr_;
@@ -29,16 +31,18 @@ class unique_ptr {
     T& operator*() const { return *ptr_; }
 
     T* get() const { return ptr_; }
+
     T* release() noexcept {
-        T* ptr = nullptr;
-        std::swap(ptr, ptr_);
-        return ptr;
+        return std::exchange(ptr_, nullptr);
     }
-    void swap(unique_ptr& ptr) noexcept {
-        std::swap(ptr_, ptr.ptr_);
-    }
-    void reset() {
+
+    void reset() noexcept {
         T* ptr = release();
         delete ptr;
+    }
+
+    void reset(T* ptr) noexcept {
+        reset();
+        ptr_ = ptr;
     }
 };
