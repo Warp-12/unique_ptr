@@ -48,3 +48,23 @@ TEST(UniquePtrTesting, TestUniquePtrEqualOperator) {
     auto testPtr = ptr.get();
     ASSERT_EQ(*testPtr, initValueForTestUniquePtrValue);
 }
+
+// new tests
+
+TEST(UniquePtrTesting, TestUniquePtrNoexcept) {
+    unique_ptr<int> ptr{new int(initValueForTestUniquePtrValue)};
+    auto testPtr = std::move(ptr);
+    ASSERT_NO_THROW(*testPtr);
+}
+
+TEST(UniquePtrTesting, TestUniquePtrResetNoexcept) {
+    unique_ptr<int> ptr{new int(initValueForTestUniquePtrValue)};
+    ASSERT_NO_THROW(ptr.reset());
+}
+
+TEST(UniquePtrTesting, TestUniquePtrRelease) {
+    unique_ptr<int> ptr(new int(initValueForTestUniquePtrValue));
+    int* manual_ptr;
+    manual_ptr = ptr.release(); // ptr is now empty
+    ASSERT_EQ(*manual_ptr, initValueForTestUniquePtrValue);
+}
